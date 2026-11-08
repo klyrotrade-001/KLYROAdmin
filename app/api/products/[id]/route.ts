@@ -22,9 +22,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     await connectDB();
     const { id } = await params;
     const product = await Product.findOneAndDelete({ $or: [{ id }, { slug: id }] });
-    if (!product) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+    if (!product) return NextResponse.json({ success: false, error: `Product '${id}' not found in DB` }, { status: 404 });
     return NextResponse.json({ success: true, message: `${product.name} deleted` });
   } catch (e: any) {
+    console.error('DELETE /api/products/[id] error:', e.message);
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }
 }

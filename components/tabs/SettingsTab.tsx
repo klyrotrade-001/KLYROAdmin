@@ -6,7 +6,7 @@ function BackendPing() {
   const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/health')
+    fetch('/api/health')
       .then((r) => r.json())
       .then((d) => setStatus(d.status === 'online' ? 'online' : 'offline'))
       .catch(() => setStatus('offline'));

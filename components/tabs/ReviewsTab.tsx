@@ -30,7 +30,7 @@ export default function ReviewsTab() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/reviews');
+      const res = await fetch('/api/reviews');
       const data = await res.json();
       if (data.success) setReviews(data.reviews);
     } catch {
@@ -42,7 +42,7 @@ export default function ReviewsTab() {
 
   const handleStatusUpdate = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      const res = await fetch(`http://localhost:5001/api/reviews/${id}`, {
+      const res = await fetch(`/api/reviews/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -59,7 +59,7 @@ export default function ReviewsTab() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this review?')) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/reviews/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         setReviews(prev => prev.filter(r => r.id !== id));
@@ -71,7 +71,7 @@ export default function ReviewsTab() {
 
   const handleVerify = async (id: string, verified: boolean) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/reviews/${id}`, {
+      const res = await fetch(`/api/reviews/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ verified }),

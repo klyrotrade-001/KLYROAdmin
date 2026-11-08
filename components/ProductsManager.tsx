@@ -40,7 +40,7 @@ export default function ProductsManager({
 
   // Fetch categories from backend
   useEffect(() => {
-    fetch('http://localhost:5001/api/categories')
+    fetch('/api/categories')
       .then((r) => r.json())
       .then((d) => { if (d.success) setCategories(d.categories); })
       .catch(() => {/* backend offline, categories stay empty */});
@@ -69,7 +69,7 @@ export default function ProductsManager({
     const product = productList.find((p) => p.id === id);
     if (!product) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/products/${id}`, {
+      const res = await fetch(`/api/products/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ inStock: !product.inStock }),
@@ -148,7 +148,7 @@ export default function ProductsManager({
       // Convert image to Base64 and save directly to MongoDB
       const base64Image = await fileToBase64(form.imageFile);
 
-      const res = await fetch('http://localhost:5001/api/products', {
+      const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -188,7 +188,7 @@ export default function ProductsManager({
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/products/${deleteTarget.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
       const data = await res.json();
       if (res.ok && data.success) {
         updateList(productList.filter((p) => p.id !== deleteTarget.id));

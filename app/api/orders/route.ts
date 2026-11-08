@@ -1,27 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND = 'http://localhost:5001';
+import { NextResponse } from 'next/server';
+import { connectDB } from '@/lib/mongodb';
+import Order from '@/models/Order';
 
 export async function GET() {
   try {
-    const res = await fetch(`${BACKEND}/api/orders`, { cache: 'no-store' });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const res = await fetch(`${BACKEND}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    await connectDB();
+    const orders = await Order.find().sort({ createdAt: -1 }).lean();
+    return NextResponse.json({ success: true, orders });
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }

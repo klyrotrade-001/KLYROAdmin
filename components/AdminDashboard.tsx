@@ -65,32 +65,32 @@ export default function AdminDashboard() {
   const [backendOffline, setBackendOffline] = useState(false);
 
   const fetchOrders = async () => {
-    const { ok, data } = await safeFetch('http://localhost:5001/api/orders');
+    const { ok, data } = await safeFetch('/api/orders');
     if (ok && data?.success) setOrders(data.orders);
   };
 
   const fetchProducts = async () => {
-    const { ok, data } = await safeFetch('http://localhost:5001/api/products?limit=200');
+    const { ok, data } = await safeFetch('/api/products?limit=200');
     if (ok && data?.success) setProducts(data.products);
   };
 
   const fetchCategories = async () => {
-    const { ok, data } = await safeFetch('http://localhost:5001/api/categories');
+    const { ok, data } = await safeFetch('/api/categories');
     if (ok && data?.success) setCategories(data.categories);
   };
 
   const fetchInquiries = async () => {
-    const { ok, data } = await safeFetch('http://localhost:5001/api/inquiries');
+    const { ok, data } = await safeFetch('/api/inquiries');
     if (ok && data?.success) setInquiries(data.inquiries);
   };
 
   const fetchSubscribers = async () => {
-    const { ok, data } = await safeFetch('http://localhost:5001/api/subscribers');
+    const { ok, data } = await safeFetch('/api/subscribers');
     if (ok && data?.success) setSubscribers(data.subscribers);
   };
 
   const checkBackend = async () => {
-    const { ok, data } = await safeFetch('http://localhost:5001/api/health');
+    const { ok, data } = await safeFetch('/api/health');
     setBackendOffline(!(ok && data?.status === 'online'));
   };
 
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
   const handleRefresh = () => { setRefreshing(true); fetchAll(); };
 
   const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus, note?: string) => {
-    const { ok, data } = await safeFetch(`http://localhost:5001/api/orders/${orderId}`, {
+    const { ok, data } = await safeFetch(`/api/orders/${orderId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus, message: note }),
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteOrder = async (orderId: string) => {
-    const { ok, data } = await safeFetch(`http://localhost:5001/api/orders/${orderId}`, { method: 'DELETE' });
+    const { ok, data } = await safeFetch(`/api/orders/${orderId}`, { method: 'DELETE' });
     if (ok && data?.success) {
       setOrders((prev) => prev.filter((o) => o.id !== orderId));
     }

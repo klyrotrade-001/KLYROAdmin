@@ -112,7 +112,7 @@ export default function CategoriesManager({
       }
 
       // Create category
-      const res = await fetch('http://localhost:5001/api/categories', {
+      const res = await fetch('/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -191,7 +191,7 @@ export default function CategoriesManager({
       }
 
       // Update category
-      const res = await fetch(`http://localhost:5001/api/categories/${editTarget.id}`, {
+      const res = await fetch(`/api/categories/${editTarget.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -222,7 +222,7 @@ export default function CategoriesManager({
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/categories/${deleteTarget.id}`, {
+      const res = await fetch(`/api/categories/${deleteTarget.id}`, {
         method: 'DELETE',
       });
       const data = await res.json();

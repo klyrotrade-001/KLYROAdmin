@@ -79,6 +79,29 @@ export default function CategoriesManager({
     }
   };
 
+  // Compress + convert image to Base64
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const img = document.createElement('img') as HTMLImageElement;
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        const MAX = 800;
+        let { width, height } = img;
+        if (width > MAX || height > MAX) {
+          if (width > height) { height = Math.round((height * MAX) / width); width = MAX; }
+          else { width = Math.round((width * MAX) / height); height = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(objectUrl);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = reject;
+      img.src = objectUrl;
+    });
+
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -90,25 +113,10 @@ export default function CategoriesManager({
 
     setSaving(true);
     try {
+      // Convert image to Base64 if provided
       let imageUrl = '/categories/default.jpg';
-
-      // Upload image if provided
       if (form.imageFile) {
-        const formData = new FormData();
-        formData.append('image', form.imageFile);
-
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const uploadData = await uploadRes.json();
-
-        if (!uploadRes.ok || !uploadData.success) {
-          setFormError(uploadData.error || 'Failed to upload image.');
-          setSaving(false);
-          return;
-        }
-        imageUrl = uploadData.url;
+        imageUrl = await fileToBase64(form.imageFile);
       }
 
       // Create category
@@ -169,25 +177,10 @@ export default function CategoriesManager({
 
     setEditing(true);
     try {
+      // Convert new image to Base64 if provided
       let imageUrl = editForm.image;
-
-      // Upload new image if provided
       if (editForm.imageFile) {
-        const formData = new FormData();
-        formData.append('image', editForm.imageFile);
-
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const uploadData = await uploadRes.json();
-
-        if (!uploadRes.ok || !uploadData.success) {
-          setFormError(uploadData.error || 'Failed to upload image.');
-          setEditing(false);
-          return;
-        }
-        imageUrl = uploadData.url;
+        imageUrl = await fileToBase64(editForm.imageFile);
       }
 
       // Update category

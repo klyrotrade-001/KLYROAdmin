@@ -194,10 +194,10 @@ export default function ProductsManager({
         updateList(productList.filter((p) => p.id !== deleteTarget.id));
         setDeleteTarget(null);
       } else {
-        alert(data.error || 'Failed to delete product.');
+        alert(`Delete failed (${res.status}): ${data.error || 'Unknown error'}`);
       }
-    } catch {
-      alert('Network error. Is the backend running?');
+    } catch (err: any) {
+      alert(`Network error: ${err.message}`);
     } finally {
       setDeleting(false);
     }

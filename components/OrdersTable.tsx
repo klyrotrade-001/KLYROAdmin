@@ -1,0 +1,235 @@
+'use client';
+
+import { useState } from 'react';
+import { Search, MessageCircle, Eye } from 'lucide-react';
+import { Order, OrderStatus } from '@/src/lib/db';
+import OrderDetailModal from './OrderDetailModal';
+
+interface OrdersTableProps {
+  orders: Order[];
+  onStatusUpdate: (orderId: string, newStatus: OrderStatus, note?: string) => Promise<void>;
+  onDeleteOrder?: (orderId: string) => Promise<void>;
+}
+
+export default function OrdersTable({ orders, onStatusUpdate, onDeleteOrder }: OrdersTableProps) {
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+
+  const formatPrice = (amount: number) => `₹${amount.toLocaleString('en-IN')}`;
+
+  const filteredOrders = orders.filter((order) => {
+    // Status filter
+    if (filterStatus !== 'all' && order.status !== filterStatus) {
+      return false;
+    }
+    // Search filter
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim();
+      const matchId = order.id.toLowerCase().includes(q);
+      const matchName = order.customer.fullName.toLowerCase().includes(q);
+      const matchPhone = order.customer.mobileNumber.includes(q);
+      const matchCity = order.customer.city.toLowerCase().includes(q);
+      return matchId || matchName || matchPhone || matchCity;
+    }
+    return true;
+  });
+
+  const getStatusBadgeClass = (status: OrderStatus) => {
+    switch (status) {
+      case 'placed':
+        return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'confirmed':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'processing':
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'shipped':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'delivered':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+
+  const statusOptions: { label: string; value: string }[] = [
+    { label: 'All Orders', value: 'all' },
+    { label: 'Placed (New)', value: 'placed' },
+    { label: 'Confirmed', value: 'confirmed' },
+    { label: 'Processing', value: 'processing' },
+    { label: 'Shipped', value: 'shipped' },
+    { label: 'Delivered', value: 'delivered' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* Status Filters */}
+        <div className="flex flex-wrap gap-1.5">
+          {statusOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setFilterStatus(opt.value)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                filterStatus === opt.value
+                  ? 'bg-[#005E23] text-white shadow-sm'
+                  : 'bg-white border border-[#E8ECE6] text-[#555555] hover:border-[#005E23]'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Search */}
+        <div className="relative w-full sm:w-72">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#777777]" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search Order ID, name, phone..."
+            className="w-full rounded-xl border border-[#E8ECE6] bg-white pl-9 pr-3 py-2 text-xs font-medium text-[#151515] placeholder-[#888888] focus:border-[#005E23] focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Orders Table Card */}
+      <div className="overflow-hidden rounded-2xl border border-[#E8ECE6] bg-white shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-[#E8ECE6] bg-[#F7F8F6] text-[#777777] uppercase text-[10px] font-bold tracking-wider">
+                <th className="py-3 px-4">Order ID</th>
+                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-4">Customer</th>
+                <th className="py-3 px-4">Items</th>
+                <th className="py-3 px-4">Total</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E8ECE6]">
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-sm font-semibold text-[#777777]">
+                    No orders found matching the filter criteria.
+                  </td>
+                </tr>
+              ) : (
+                filteredOrders.map((order) => {
+                  const customerPhone = order.customer.mobileNumber.replace(/\D/g, '');
+                  const waUrl = `https://wa.me/91${customerPhone}?text=${encodeURIComponent(
+                    `Hello ${order.customer.fullName}, KLYRO Support here regarding your Order #${order.id}. Current Status: ${order.status.toUpperCase()}.`
+                  )}`;
+
+                  return (
+                    <tr key={order.id} className="hover:bg-[#F7F8F6]/60 transition-colors">
+                      {/* Order ID */}
+                      <td className="py-3.5 px-4 font-bold text-[#151515]">
+                        <button
+                          type="button"
+                          onClick={() => setActiveOrder(order)}
+                          className="hover:text-[#005E23] hover:underline"
+                        >
+                          #{order.id}
+                        </button>
+                      </td>
+
+                      {/* Date */}
+                      <td className="py-3.5 px-4 text-[#777777]">
+                        {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                        })}
+                      </td>
+
+                      {/* Customer */}
+                      <td className="py-3.5 px-4">
+                        <span className="font-bold text-[#151515] block">
+                          {order.customer.fullName}
+                        </span>
+                        <span className="text-[10px] text-[#777777] block">
+                          {order.customer.mobileNumber} • {order.customer.city}
+                        </span>
+                      </td>
+
+                      {/* Items */}
+                      <td className="py-3.5 px-4 text-[#555555]">
+                        <span className="font-semibold text-[#151515]">
+                          {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                        </span>
+                        <span className="text-[10px] text-[#777777] block truncate max-w-xs">
+                          {order.items.map((i) => i.name).join(', ')}
+                        </span>
+                      </td>
+
+                      {/* Total */}
+                      <td className="py-3.5 px-4 font-black text-[#151515]">
+                        {formatPrice(order.totalAmount)}
+                      </td>
+
+                      {/* Status Dropdown */}
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={order.status}
+                          onChange={(e) => onStatusUpdate(order.id, e.target.value as OrderStatus)}
+                          className={`rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider focus:outline-none cursor-pointer ${getStatusBadgeClass(
+                            order.status
+                          )}`}
+                        >
+                          <option value="placed">Placed</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <a
+                            href={waUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Chat with Customer on WhatsApp"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#ecfdf5] text-[#005E23] hover:bg-[#25D366] hover:text-white transition-colors"
+                          >
+                            <MessageCircle size={14} />
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => setActiveOrder(order)}
+                            title="View Order Details"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F7F8F6] text-[#151515] hover:bg-[#E8ECE6] transition-colors"
+                          >
+                            <Eye size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Order Detail Modal */}
+      {activeOrder && (
+        <OrderDetailModal
+          order={activeOrder}
+          onClose={() => setActiveOrder(null)}
+          onStatusUpdate={async (id, status, note) => {
+            await onStatusUpdate(id, status, note);
+            setActiveOrder(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}

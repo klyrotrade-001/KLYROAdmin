@@ -21,8 +21,8 @@ function BackendPing() {
         {status === 'checking'
           ? 'Checking...'
           : status === 'online'
-          ? 'Backend Online (port 5001)'
-          : 'Backend Offline — run: node backend/server.js'}
+          ? 'Connected — MongoDB + Vercel'
+          : 'Database Offline — check MONGODB_URI in Vercel env'}
       </span>
     </div>
   );

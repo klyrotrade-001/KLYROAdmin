@@ -141,11 +141,12 @@ export default function AdminDashboard() {
           <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-center gap-3">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500 shrink-0 animate-pulse" />
             <p className="text-sm font-bold text-red-700">
-              Backend offline —{' '}
-              <span className="font-normal">data may not load. Run:{' '}</span>
+              Database offline —{' '}
+              <span className="font-normal">Add </span>
               <code className="bg-red-100 border border-red-200 px-1.5 py-0.5 rounded font-mono text-xs">
-                cd backend &amp;&amp; node server.js
+                MONGODB_URI
               </code>
+              <span className="font-normal"> in Vercel Environment Variables and redeploy.</span>
             </p>
           </div>
         )}

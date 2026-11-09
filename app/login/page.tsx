@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 400));
 
-    if (username === 'admin' && password === 'admin123') {
+    if (username === 'admin' && password === (localStorage.getItem('adminPassword') || 'admin123')) {
       localStorage.setItem('adminAuth', 'true');
       localStorage.setItem('adminUser', username);
       router.replace('/');

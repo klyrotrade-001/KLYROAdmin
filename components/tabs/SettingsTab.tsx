@@ -40,21 +40,10 @@ function ChangePasswordSection() {
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const getStoredPassword = () =>
-    localStorage.getItem('adminPassword') || 'admin123';
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('idle');
     setMessage('');
-
-    const stored = getStoredPassword();
-
-    if (currentPassword !== stored) {
-      setStatus('error');
-      setMessage('Current password is incorrect.');
-      return;
-    }
 
     if (newPassword.length < 6) {
       setStatus('error');
@@ -68,22 +57,32 @@ function ChangePasswordSection() {
       return;
     }
 
-    if (newPassword === stored) {
-      setStatus('error');
-      setMessage('New password must be different from current password.');
-      return;
-    }
-
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const username = localStorage.getItem('adminUser') || 'admin';
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, currentPassword, newPassword }),
+      });
+      const data = await res.json();
 
-    localStorage.setItem('adminPassword', newPassword);
-    setStatus('success');
-    setMessage('Password changed successfully!');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setSaving(false);
+      if (data.success) {
+        setStatus('success');
+        setMessage('Password changed successfully! Use new password on next login.');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setStatus('error');
+        setMessage(data.error || 'Failed to change password.');
+      }
+    } catch {
+      setStatus('error');
+      setMessage('Connection error. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -214,10 +213,10 @@ function ChangePasswordSection() {
         </button>
       </form>
 
-      <div className="mt-5 flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
-        <Shield size={14} className="text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-700">
-          Password is stored securely in your browser. If you clear browser data, the default password <strong>admin123</strong> will be restored.
+      <div className="mt-5 flex items-start gap-2 rounded-xl bg-[#ecfdf5] border border-[#a7f3d0] px-4 py-3">
+        <Shield size={14} className="text-[#005E23] shrink-0 mt-0.5" />
+        <p className="text-xs text-[#005E23]">
+          Password is stored permanently in MongoDB. Default password is <strong>admin123</strong> until changed.
         </p>
       </div>
     </div>

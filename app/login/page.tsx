@@ -23,16 +23,27 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
 
-    if (username === 'admin' && password === (localStorage.getItem('adminPassword') || 'admin123')) {
-      localStorage.setItem('adminAuth', 'true');
-      localStorage.setItem('adminUser', username);
-      router.replace('/');
-    } else {
-      setError('Invalid username or password.');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('adminAuth', 'true');
+        localStorage.setItem('adminUser', username);
+        router.replace('/');
+      } else {
+        setError(data.error || 'Invalid username or password.');
+      }
+    } catch {
+      setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Next.js Admin Panel for KLYRO Ecommerce storefront",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",

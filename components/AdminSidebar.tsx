@@ -66,11 +66,6 @@ export default function AdminSidebar({ currentTab, setCurrentTab, pendingCount }
   return (
     <aside className="w-56 shrink-0 min-h-screen bg-white border-r border-[#E8E8E8] flex flex-col select-none">
 
-      {/* Brand */}
-      <div className="px-4 py-4 border-b border-[#F0F0F0]">
-        <p className="text-[15px] font-black text-[#111111] tracking-tight">Admin</p>
-      </div>
-
       {/* Main nav */}
       <div className="flex-1 overflow-y-auto py-3 px-2 flex flex-col gap-0.5">
         {menuItems.map((item) => <NavItem key={item.id} {...item} />)}

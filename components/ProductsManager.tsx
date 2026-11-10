@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import ProductImage from '@/components/ProductImage';
 import {
   Search, Star, CheckCircle2, XCircle, Tag,
   Plus, Trash2, X, Upload, AlertTriangle,
@@ -291,7 +291,7 @@ export default function ProductsManager({
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-[#E8ECE6] bg-[#F7F8F6]">
-                          <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                          <ProductImage src={product.images[0]} alt={product.name} fill className="object-cover" />
                         </div>
                         <div>
                           <p className="font-bold text-[#151515] leading-snug line-clamp-1">{product.name}</p>
@@ -472,7 +472,7 @@ export default function ProductsManager({
                   {form.imageFile && (
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-[#ecfdf5] border border-[#a7f3d0]">
                       <div className="relative h-16 w-16 rounded-lg overflow-hidden border border-[#E8ECE6] shrink-0">
-                        <Image src={form.image} alt="preview" fill className="object-cover" unoptimized />
+                        <ProductImage src={form.image} alt="preview" fill className="object-cover" unoptimized />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-[#151515] truncate">{form.imageFile.name}</p>

@@ -42,8 +42,18 @@ export default function ProductsManager({
   useEffect(() => {
     fetch('/api/categories')
       .then((r) => r.json())
-      .then((d) => { if (d.success) setCategories(d.categories); })
-      .catch(() => {/* backend offline, categories stay empty */});
+      .then((d) => {
+        if (d.success && d.categories?.length) {
+          setCategories(d.categories);
+          // Set form default to first loaded category
+          setForm((f) => ({
+            ...f,
+            category: d.categories[0].name,
+            categorySlug: d.categories[0].slug,
+          }));
+        }
+      })
+      .catch(() => {/* backend offline */});
   }, []);
 
   const updateList = (next: Product[]) => {
@@ -101,8 +111,12 @@ export default function ProductsManager({
   // ── ADD PRODUCT ──────────────────────────────────────────────
   const handleFormChange = (key: string, value: string | boolean | File | null) => {
     if (key === 'category') {
-      const cat = categories.find((c) => c.name === value);
-      setForm((f) => ({ ...f, category: value as string, categorySlug: cat?.slug || '' }));
+      const cat = categories.find((c) => c.name === value || c.slug === value);
+      setForm((f) => ({
+        ...f,
+        category: cat?.name || (value as string),
+        categorySlug: cat?.slug || '',
+      }));
     } else if (key === 'imageFile') {
       setForm((f) => ({ ...f, imageFile: value as File | null }));
     } else {
@@ -171,7 +185,11 @@ export default function ProductsManager({
       const data = await res.json();
       if (res.ok && data.success) {
         updateList([data.product, ...productList]);
-        setForm({ ...EMPTY_FORM });
+        setForm({
+          ...EMPTY_FORM,
+          category: categories[0]?.name || '',
+          categorySlug: categories[0]?.slug || '',
+        });
         setShowAddModal(false);
       } else {
         setFormError(data.error || 'Failed to add product.');
@@ -252,7 +270,16 @@ export default function ProductsManager({
           {/* Add button */}
           <button
             type="button"
-            onClick={() => { setShowAddModal(true); setFormError(''); }}
+            onClick={() => {
+              setShowAddModal(true);
+              setFormError('');
+              // Reset form with current first category as default
+              setForm({
+                ...EMPTY_FORM,
+                category: categories[0]?.name || '',
+                categorySlug: categories[0]?.slug || '',
+              });
+            }}
             className="flex items-center gap-1.5 rounded-xl bg-[#005E23] px-4 py-2 text-xs font-bold text-white hover:bg-[#004719] transition-colors shrink-0"
           >
             <Plus size={14} />

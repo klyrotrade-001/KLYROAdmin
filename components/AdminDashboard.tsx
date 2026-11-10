@@ -126,7 +126,7 @@ export default function AdminDashboard() {
   const pendingCount = orders.filter((o) => o.status === 'placed').length;
 
   return (
-    <div className="flex min-h-screen bg-[#F5F5F5]">
+    <div className="flex min-h-screen bg-gray-100">
       <AdminSidebar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}

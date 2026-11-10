@@ -40,22 +40,16 @@ export default function AdminSidebar({ currentTab, setCurrentTab, pendingCount }
       <button
         type="button"
         onClick={() => setCurrentTab(id)}
-        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] transition-colors ${
+        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
           active
-            ? 'bg-[#EFEFEF] font-semibold text-[#111111]'
-            : 'font-normal text-[#666666] hover:bg-[#F5F5F5] hover:text-[#111111]'
+            ? 'bg-[#005E23] text-white font-medium'
+            : 'text-gray-300 hover:bg-[#1a4d2e] hover:text-white'
         }`}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <Icon
-            size={15}
-            strokeWidth={active ? 2.2 : 1.7}
-            className={`shrink-0 ${active ? 'text-[#111111]' : 'text-[#999999]'}`}
-          />
-          <span className="truncate">{label}</span>
-        </div>
+        <Icon size={18} className="shrink-0" />
+        <span className="truncate">{label}</span>
         {badge && pendingCount > 0 && (
-          <span className="ml-2 shrink-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#111111] px-1 text-[10px] font-black text-white">
+          <span className="ml-auto shrink-0 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
             {pendingCount}
           </span>
         )}
@@ -64,80 +58,71 @@ export default function AdminSidebar({ currentTab, setCurrentTab, pendingCount }
   };
 
   return (
-    <aside className="w-56 shrink-0 min-h-screen bg-white border-r border-[#E8E8E8] flex flex-col select-none">
+    <aside className="w-60 shrink-0 min-h-screen bg-[#2d3748] flex flex-col select-none shadow-lg">
+      {/* Brand */}
+      <div className="px-4 py-6 border-b border-gray-700">
+        <h1 className="text-xl font-bold text-white">KLYRO</h1>
+        <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
+      </div>
 
       {/* Main nav */}
-      <div className="flex-1 overflow-y-auto py-3 px-2 flex flex-col gap-0.5">
+      <div className="flex-1 overflow-y-auto py-2">
         {menuItems.map((item) => <NavItem key={item.id} {...item} />)}
 
         {/* Divider */}
-        <div className="my-3 border-t border-[#F0F0F0]" />
+        <div className="my-4 border-t border-gray-700" />
 
         {/* Settings group */}
-        <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-[#CCCCCC]">Settings</p>
+        <div className="px-4 py-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">System</p>
+        </div>
 
         <button
           type="button"
           onClick={() => setCurrentTab('settings')}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] transition-colors ${
+          className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
             currentTab === 'settings'
-              ? 'bg-[#EFEFEF] font-semibold text-[#111111]'
-              : 'font-normal text-[#666666] hover:bg-[#F5F5F5] hover:text-[#111111]'
+              ? 'bg-[#005E23] text-white font-medium'
+              : 'text-gray-300 hover:bg-[#1a4d2e] hover:text-white'
           }`}
         >
-          <div className="flex items-center gap-2.5">
-            <Settings size={15} strokeWidth={currentTab === 'settings' ? 2.2 : 1.7}
-              className={currentTab === 'settings' ? 'text-[#111111]' : 'text-[#999999]'} />
-            <span>Settings</span>
-          </div>
-          <span className="text-[11px] text-[#CCCCCC] ml-2 truncate">Configure store</span>
+          <Settings size={18} className="shrink-0" />
+          <span>Settings</span>
         </button>
 
         <button
           type="button"
           onClick={() => setCurrentTab('help')}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] transition-colors ${
+          className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
             currentTab === 'help'
-              ? 'bg-[#EFEFEF] font-semibold text-[#111111]'
-              : 'font-normal text-[#666666] hover:bg-[#F5F5F5] hover:text-[#111111]'
+              ? 'bg-[#005E23] text-white font-medium'
+              : 'text-gray-300 hover:bg-[#1a4d2e] hover:text-white'
           }`}
         >
-          <div className="flex items-center gap-2.5">
-            <HelpCircle size={15} strokeWidth={currentTab === 'help' ? 2.2 : 1.7}
-              className={currentTab === 'help' ? 'text-[#111111]' : 'text-[#999999]'} />
-            <span>Help</span>
-          </div>
-          <span className="text-[11px] text-[#CCCCCC] ml-2 truncate">Get support</span>
+          <HelpCircle size={18} className="shrink-0" />
+          <span>Help</span>
         </button>
+      </div>
 
-        {/* Divider */}
-        <div className="my-3 border-t border-[#F0F0F0]" />
-
-        {/* Storefront */}
+      {/* Bottom actions */}
+      <div className="border-t border-gray-700">
         <a
           href="https://klyro-frontend-tau.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-normal text-[#666666] hover:bg-[#F5F5F5] hover:text-[#111111] transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#1a4d2e] hover:text-white transition-colors"
         >
-          <div className="flex items-center gap-2.5">
-            <ExternalLink size={15} strokeWidth={1.7} className="text-[#999999] shrink-0" />
-            <span>Storefront</span>
-          </div>
-          <span className="text-[11px] text-[#CCCCCC]">↗</span>
+          <ExternalLink size={18} className="shrink-0" />
+          <span>View Storefront</span>
         </a>
 
-        {/* Logout */}
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-normal text-[#666666] hover:bg-[#FEF2F2] hover:text-red-600 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-red-600 hover:text-white transition-colors"
         >
-          <div className="flex items-center gap-2.5">
-            <LogOut size={15} strokeWidth={1.7} className="text-[#999999] shrink-0" />
-            <span>Logout</span>
-          </div>
-          <span className="text-[11px] text-[#CCCCCC]">Exit</span>
+          <LogOut size={18} className="shrink-0" />
+          <span>Logout</span>
         </button>
       </div>
     </aside>

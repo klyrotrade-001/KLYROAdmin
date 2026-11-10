@@ -60,9 +60,14 @@ export default function AdminSidebar({ currentTab, setCurrentTab, pendingCount }
   return (
     <aside className="w-60 shrink-0 min-h-screen bg-[#2d3748] flex flex-col select-none shadow-lg">
       {/* Brand */}
-      <div className="px-4 py-6 border-b border-gray-700">
-        <h1 className="text-xl font-bold text-white">KLYRO</h1>
-        <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
+      <div className="px-4 py-6 border-b border-gray-700 bg-[#1a252f]">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-8 w-8 rounded bg-[#005E23] flex items-center justify-center">
+            <span className="text-white font-bold text-sm">K</span>
+          </div>
+          <h1 className="text-xl font-bold text-white tracking-tight">KLYRO</h1>
+        </div>
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Admin Panel</p>
       </div>
 
       {/* Main nav */}

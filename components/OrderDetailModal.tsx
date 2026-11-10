@@ -9,9 +9,10 @@ interface ModalProps {
   order: Order | null;
   onClose: () => void;
   onStatusUpdate: (orderId: string, newStatus: OrderStatus, note?: string) => Promise<void>;
+  onDeleteOrder?: (orderId: string) => Promise<void>;
 }
 
-export default function OrderDetailModal({ order, onClose, onStatusUpdate }: ModalProps) {
+export default function OrderDetailModal({ order, onClose, onStatusUpdate, onDeleteOrder }: ModalProps) {
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order?.status || 'placed');
   const [statusNote, setStatusNote] = useState('');
   const [updating, setUpdating] = useState(false);
@@ -51,13 +52,30 @@ export default function OrderDetailModal({ order, onClose, onStatusUpdate }: Mod
               Placed on {new Date(order.createdAt).toLocaleString('en-IN')}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#777777] hover:bg-white hover:text-[#151515]"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            {onDeleteOrder && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(`Delete Order #${order.id}?\n\nThis will permanently remove the order and cannot be undone.`)) {
+                    onDeleteOrder(order.id);
+                    onClose();
+                  }
+                }}
+                title="Delete Order"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-red-600 hover:bg-red-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[#777777] hover:bg-white hover:text-[#151515]"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Content Body */}

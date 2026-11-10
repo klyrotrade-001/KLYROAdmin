@@ -208,6 +208,20 @@ export default function OrdersTable({ orders, onStatusUpdate, onDeleteOrder }: O
                           >
                             <Eye size={14} />
                           </button>
+                          {onDeleteOrder && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm(`Delete Order #${order.id}? This action cannot be undone.`)) {
+                                  onDeleteOrder(order.id);
+                                }
+                              }}
+                              title="Delete Order"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -228,6 +242,10 @@ export default function OrdersTable({ orders, onStatusUpdate, onDeleteOrder }: O
             await onStatusUpdate(id, status, note);
             setActiveOrder(null);
           }}
+          onDeleteOrder={onDeleteOrder ? async (id) => {
+            await onDeleteOrder(id);
+            setActiveOrder(null);
+          } : undefined}
         />
       )}
     </div>

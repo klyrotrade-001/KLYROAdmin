@@ -39,18 +39,31 @@ export interface Subscriber {
 }
 
 // Safe fetch — never crashes even if backend is offline or returns non-JSON
+// Retries once on 503 (Render cold start) with 8s delay
 async function safeFetch(url: string, options?: RequestInit) {
-  try {
-    const res = await fetch(url, options);
-    const text = await res.text();
+  const attempt = async () => {
     try {
-      return { ok: res.ok, data: JSON.parse(text) };
+      const res = await fetch(url, options);
+      const text = await res.text();
+      try {
+        return { ok: res.ok, status: res.status, data: JSON.parse(text) };
+      } catch {
+        return { ok: false, status: res.status, data: null };
+      }
     } catch {
-      return { ok: false, data: null };
+      return { ok: false, status: 0, data: null };
     }
-  } catch {
-    return { ok: false, data: null };
+  };
+
+  let result = await attempt();
+
+  // Render cold start: retry once after 8 seconds on 503
+  if (result.status === 503 || result.status === 0) {
+    await new Promise((r) => setTimeout(r, 8000));
+    result = await attempt();
   }
+
+  return result;
 }
 
 export default function AdminDashboard() {

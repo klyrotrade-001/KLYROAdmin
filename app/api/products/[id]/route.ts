@@ -1,31 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
-import Product from '@/models/Product';
+
+const BACKEND = (process.env.NEXT_PUBLIC_API_URL || 'https://klyroback.onrender.com').replace(/\/+$/, '');
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await connectDB();
     const { id } = await params;
     const body = await req.json();
-    const product = await Product.findOneAndUpdate(
-      { $or: [{ id }, { slug: id }] }, body, { new: true }
-    ).lean();
-    if (!product) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
-    return NextResponse.json({ success: true, product });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+    const res = await fetch(`${BACKEND}/api/products/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Backend unavailable' }, { status: 503 });
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await connectDB();
     const { id } = await params;
-    const product = await Product.findOneAndDelete({ $or: [{ id }, { slug: id }] });
-    if (!product) return NextResponse.json({ success: false, error: `Product '${id}' not found in DB` }, { status: 404 });
-    return NextResponse.json({ success: true, message: `${product.name} deleted` });
-  } catch (e: any) {
-    console.error('DELETE /api/products/[id] error:', e.message);
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+    const res = await fetch(`${BACKEND}/api/products/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Backend unavailable' }, { status: 503 });
   }
 }

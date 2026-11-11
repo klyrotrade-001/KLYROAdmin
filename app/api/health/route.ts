@@ -1,23 +1,13 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+
+const BACKEND = (process.env.NEXT_PUBLIC_API_URL || 'https://klyroback.onrender.com').replace(/\/+$/, '');
 
 export async function GET() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    return NextResponse.json({
-      status: 'online',
-      db: 'error',
-      error: 'MONGODB_URI environment variable is not set in Vercel',
-    });
-  }
   try {
-    await connectDB();
-    return NextResponse.json({ status: 'online', db: 'mongodb', connected: true });
-  } catch (e: any) {
-    return NextResponse.json({
-      status: 'online',
-      db: 'error',
-      error: e.message,
-    });
+    const res = await fetch(`${BACKEND}/api/health`, { cache: 'no-store' });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ status: 'offline', db: 'error', error: 'Backend unavailable' }, { status: 503 });
   }
 }

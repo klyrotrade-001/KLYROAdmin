@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
-import Inquiry from '@/models/Inquiry';
+
+const BACKEND = (process.env.NEXT_PUBLIC_API_URL || 'https://klyroback.onrender.com').replace(/\/+$/, '');
 
 export async function GET() {
   try {
-    await connectDB();
-    const inquiries = await Inquiry.find().sort({ createdAt: -1 }).lean();
-    return NextResponse.json({ success: true, inquiries });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+    const res = await fetch(`${BACKEND}/api/inquiries`, { cache: 'no-store' });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Backend unavailable' }, { status: 503 });
   }
 }

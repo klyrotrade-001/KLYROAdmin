@@ -1,21 +1,13 @@
-import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
-import Review from '@/models/Review';
+import { NextRequest, NextResponse } from 'next/server';
+
+const BACKEND = (process.env.NEXT_PUBLIC_API_URL || 'https://klyroback.onrender.com').replace(/\/+$/, '');
 
 export async function GET() {
   try {
-    await connectDB();
-    const raw = await Review.find().sort({ createdAt: -1 }).lean() as any[];
-
-    // Normalize: map approved:bool → status string, customerName → userName
-    const reviews = raw.map((r) => ({
-      ...r,
-      userName: r.userName || r.customerName || 'Anonymous',
-      status: r.status ?? (r.approved === true ? 'approved' : r.approved === false ? 'pending' : 'pending'),
-    }));
-
-    return NextResponse.json({ success: true, reviews });
-  } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
+    const res = await fetch(`${BACKEND}/api/reviews`, { cache: 'no-store' });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Backend unavailable' }, { status: 503 });
   }
 }

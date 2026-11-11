@@ -7,7 +7,7 @@ interface Review {
   id: string;
   productId: string;
   productName: string;
-  userName: string;
+  customerName: string;
   rating: number;
   comment: string;
   variant: string;
@@ -89,7 +89,7 @@ export default function ReviewsTab() {
     if (filter !== 'all' && r.status !== filter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
-      return r.userName.toLowerCase().includes(q) ||
+      return r.customerName.toLowerCase().includes(q) ||
         r.productName.toLowerCase().includes(q) ||
         r.comment.toLowerCase().includes(q);
     }
@@ -166,7 +166,7 @@ export default function ReviewsTab() {
                 {/* Review Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="text-sm font-black text-[#151515]">{review.userName}</span>
+                    <span className="text-sm font-black text-[#151515]">{review.customerName}</span>
 
                     {/* Status Badge */}
                     {review.status === 'pending' && (

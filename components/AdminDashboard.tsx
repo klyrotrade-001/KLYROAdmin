@@ -77,33 +77,36 @@ export default function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [backendOffline, setBackendOffline] = useState(false);
 
+  // Backend API base URL
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
+
   const fetchOrders = async () => {
-    const { ok, data } = await safeFetch('/api/orders');
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/orders`);
     if (ok && data?.success) setOrders(data.orders);
   };
 
   const fetchProducts = async () => {
-    const { ok, data } = await safeFetch('/api/products?limit=200&showAll=true');
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/products?limit=200&showAll=true`);
     if (ok && data?.success) setProducts(data.products);
   };
 
   const fetchCategories = async () => {
-    const { ok, data } = await safeFetch('/api/categories');
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/categories`);
     if (ok && data?.success) setCategories(data.categories);
   };
 
   const fetchInquiries = async () => {
-    const { ok, data } = await safeFetch('/api/inquiries');
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/inquiries`);
     if (ok && data?.success) setInquiries(data.inquiries);
   };
 
   const fetchSubscribers = async () => {
-    const { ok, data } = await safeFetch('/api/subscribers');
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/subscribers`);
     if (ok && data?.success) setSubscribers(data.subscribers);
   };
 
   const checkBackend = async () => {
-    const { ok, data } = await safeFetch('/api/health');
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/health`);
     setBackendOffline(!(ok && data?.status === 'online'));
   };
 
@@ -119,7 +122,7 @@ export default function AdminDashboard() {
   const handleRefresh = () => { setRefreshing(true); fetchAll(); };
 
   const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus, note?: string) => {
-    const { ok, data } = await safeFetch(`/api/orders/${orderId}`, {
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/orders/${orderId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus, message: note }),

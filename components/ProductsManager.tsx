@@ -40,7 +40,8 @@ export default function ProductsManager({
 
   // Fetch categories from backend
   useEffect(() => {
-    fetch('/api/categories')
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
+    fetch(`${BACKEND_URL}/api/categories`)
       .then((r) => r.json())
       .then((d) => {
         if (d.success && d.categories?.length) {
@@ -79,7 +80,8 @@ export default function ProductsManager({
     const product = productList.find((p) => p.id === id);
     if (!product) return;
     try {
-      const res = await fetch(`/api/products/${id}`, {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
+      const res = await fetch(`${BACKEND_URL}/api/products/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ inStock: !product.inStock }),
@@ -162,7 +164,9 @@ export default function ProductsManager({
       // Convert image to Base64 and save directly to MongoDB
       const base64Image = await fileToBase64(form.imageFile);
 
-      const res = await fetch('/api/products', {
+      // Call backend API directly
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
+      const res = await fetch(`${BACKEND_URL}/api/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -194,7 +198,8 @@ export default function ProductsManager({
       } else {
         setFormError(data.error || 'Failed to add product.');
       }
-    } catch {
+    } catch (err) {
+      console.error('Add product error:', err);
       setFormError('Network error. Is the backend running?');
     } finally {
       setSaving(false);
@@ -206,7 +211,8 @@ export default function ProductsManager({
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
+      const res = await fetch(`${BACKEND_URL}/api/products/${deleteTarget.id}`, { method: 'DELETE' });
       const data = await res.json();
       if (res.ok && data.success) {
         updateList(productList.filter((p) => p.id !== deleteTarget.id));
@@ -422,7 +428,7 @@ export default function ProductsManager({
                   className="w-full rounded-xl border border-[#E8ECE6] bg-[#F7F8F6] px-4 py-2.5 text-sm text-[#151515] focus:border-[#005E23] focus:bg-white focus:outline-none"
                 >
                   {categories.length === 0 ? (
-                    <option value="" disabled>Loading categories...</option>
+                    <option value="" disabled>Loading categories...</option>   
                   ) : (
                     categories.map((c) => (
                       <option key={c.id} value={c.name}>{c.name}</option>

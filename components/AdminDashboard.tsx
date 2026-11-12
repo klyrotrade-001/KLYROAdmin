@@ -83,7 +83,7 @@ export default function AdminDashboard() {
   };
 
   const fetchProducts = async () => {
-    const { ok, data } = await safeFetch('/api/products?limit=200');
+    const { ok, data } = await safeFetch('/api/products?limit=200&showAll=true');
     if (ok && data?.success) setProducts(data.products);
   };
 

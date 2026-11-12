@@ -13,6 +13,7 @@ import SubscribersTab from './tabs/SubscribersTab';
 import SettingsTab from './tabs/SettingsTab';
 import { Order, OrderStatus } from '@/src/lib/db';
 import { Product } from '@/src/types';
+import { BACKEND_URL, safeFetch } from '@/src/lib/api';
 
 export interface Category {
   id: string;
@@ -38,34 +39,6 @@ export interface Subscriber {
   subscribedAt: string;
 }
 
-// Safe fetch — never crashes even if backend is offline or returns non-JSON
-// Retries once on 503 (Render cold start) with 8s delay
-async function safeFetch(url: string, options?: RequestInit) {
-  const attempt = async () => {
-    try {
-      const res = await fetch(url, options);
-      const text = await res.text();
-      try {
-        return { ok: res.ok, status: res.status, data: JSON.parse(text) };
-      } catch {
-        return { ok: false, status: res.status, data: null };
-      }
-    } catch {
-      return { ok: false, status: 0, data: null };
-    }
-  };
-
-  let result = await attempt();
-
-  // Render cold start: retry once after 8 seconds on 503
-  if (result.status === 503 || result.status === 0) {
-    await new Promise((r) => setTimeout(r, 8000));
-    result = await attempt();
-  }
-
-  return result;
-}
-
 export default function AdminDashboard() {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -76,9 +49,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [backendOffline, setBackendOffline] = useState(false);
-
-  // Backend API base URL
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
 
   const fetchOrders = async () => {
     const { ok, data } = await safeFetch(`${BACKEND_URL}/api/orders`);
@@ -133,7 +103,7 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteOrder = async (orderId: string) => {
-    const { ok, data } = await safeFetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+    const { ok, data } = await safeFetch(`${BACKEND_URL}/api/orders/${orderId}`, { method: 'DELETE' });
     if (ok && data?.success) {
       setOrders((prev) => prev.filter((o) => o.id !== orderId));
     }

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import {
   Search, Plus, Trash2, X, Upload, AlertTriangle, Edit2, Save, Folder,
 } from 'lucide-react';
+import { BACKEND_URL, fileToBase64 } from '@/src/lib/api';
 
 interface Category {
   id: string;
@@ -120,7 +121,7 @@ export default function CategoriesManager({
       }
 
       // Create category
-      const res = await fetch('/api/categories', {
+      const res = await fetch(`${BACKEND_URL}/api/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -184,7 +185,7 @@ export default function CategoriesManager({
       }
 
       // Update category
-      const res = await fetch(`/api/categories/${editTarget.id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/categories/${editTarget.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -215,7 +216,7 @@ export default function CategoriesManager({
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/categories/${deleteTarget.id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/categories/${deleteTarget.id}`, {
         method: 'DELETE',
       });
       const data = await res.json();

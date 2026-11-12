@@ -7,6 +7,7 @@ import {
   Plus, Trash2, X, Upload, AlertTriangle,
 } from 'lucide-react';
 import { Product } from '@/src/types';
+import { BACKEND_URL, fileToBase64 } from '@/src/lib/api';
 
 const EMPTY_FORM = {
   name: '',
@@ -126,30 +127,6 @@ export default function ProductsManager({
     }
   };
 
-  // Compress + convert image to Base64 (max 800px, quality 0.8)
-  const fileToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const img = document.createElement('img') as HTMLImageElement;
-      const objectUrl = URL.createObjectURL(file);
-      img.onload = () => {
-        const MAX = 800;
-        let { width, height } = img;
-        if (width > MAX || height > MAX) {
-          if (width > height) { height = Math.round((height * MAX) / width); width = MAX; }
-          else { width = Math.round((width * MAX) / height); height = MAX; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, width, height);
-        URL.revokeObjectURL(objectUrl);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
-      };
-      img.onerror = reject;
-      img.src = objectUrl;
-    });
-
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -164,8 +141,6 @@ export default function ProductsManager({
       // Convert image to Base64 and save directly to MongoDB
       const base64Image = await fileToBase64(form.imageFile);
 
-      // Call backend API directly
-      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://klyroback.onrender.com';
       const res = await fetch(`${BACKEND_URL}/api/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

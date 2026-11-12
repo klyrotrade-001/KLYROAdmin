@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Lock, CheckCircle2, AlertTriangle, Shield } from 'lucide-react';
 
+import { BACKEND_URL } from '@/src/lib/api';
+
 function BackendPing() {
   const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   useEffect(() => {
-    fetch('/api/health')
+    fetch(`${BACKEND_URL}/api/health`)
       .then((r) => r.json())
       .then((d) => setStatus(d.status === 'online' ? 'online' : 'offline'))
       .catch(() => setStatus('offline'));
@@ -60,7 +62,7 @@ function ChangePasswordSection() {
     setSaving(true);
     try {
       const username = localStorage.getItem('adminUser') || 'admin';
-      const res = await fetch('/api/auth/change-password', {
+      const res = await fetch(`${BACKEND_URL}/api/auth/change-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, currentPassword, newPassword }),
